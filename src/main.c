@@ -87,3 +87,71 @@ int mesh_execute(char **args){
     }
     return mesh_launch(args);
 }
+
+#define mesh_buffer_size 1024
+char *mesh_readline(void){
+    int bufsize = mesh_buffer_size;
+    int pos = 0;
+    char* buffer = malloc(sizeof(char) * bufsize);
+    int c;
+    if (!buffer){
+        fprintf(stderr, "mesh: allocation error\n");
+        exit(EXIT_FAILURE);
+
+    }
+
+    while(1){
+        c = getchar();
+        if (c == EOF || c == '\n') {
+            buffer[pos] = '\0';
+            return buffer;
+        }else {
+            buffer[pos] = c;
+        }
+        pos++;
+
+        if(pos>=bufsize){
+            bufsize+=mesh_buffer_size;
+            buffer = realloc(buffer,bufsize);
+            if (!buffer){
+                fprintf(stderr, "mesh: allocation error\n");
+                exit(EXIT_FAILURE);
+            }
+        }
+
+    }
+
+}
+
+#define mesh_tok_bufsize 64
+#define mesh_tok_delim " \t\r\n\a"
+
+char **mesh_line_split(char *line){
+    int bufsize = mesh_tok_bufsize,pos=0;
+    char **tokens = malloc(bufsize * sizeof(char*));
+    char *token;
+
+    if (!tokens) {
+        fprintf(stderr, "mesh: allocation error\n");
+        exit(EXIT_FAILURE);
+    }
+    token = strtok(line,mesh_tok_delim);
+    while(token != NULL){
+        tokens[pos] = token;
+        pos++;
+
+        if(pos>= bufsize){
+            bufsize+= mesh_buffer_size;
+            tokens = realoc(tokens,bufsize * sizeof(char*));
+            if(!tokens){
+                fprintf(stderr, "mesh: allocation error\n");
+                exit(EXIT_FAILURE);
+            }
+        }
+        token = strtok(NULL,mesh_tok_delim);
+    }
+    tokens[pos] = NULL;
+    return tokens;
+
+
+}
