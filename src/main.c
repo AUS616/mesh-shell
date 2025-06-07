@@ -4,22 +4,30 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/wait.h>
+#include <dirent.h>
 // commands 
 int mesh_cd(char **args);
 int mesh_help(char **args);
 int mesh_exit(char **args);
+int mesh_ls(char **args);
+
+//color
+#define RED "\033[31m"
+#define RESET "\033[0m"
 
 // buildin commands
 char *buildin_str[] = {
     "cd",
     "help",
-    "exit"
+    "exit",
+    "ls"
 };
 // array of builtin commands
 int(*buildin_func[])(char **) = {
     &mesh_cd,
     &mesh_help,
-    &mesh_exit
+    &mesh_exit,
+    &mesh_ls
 };
 //number of builtin functions
 int mesh_num_builtin(){
@@ -46,6 +54,36 @@ int mesh_help(char **args){
 
 int mesh_exit(char **args){
     return 0;
+}
+
+int mesh_ls(char **args){
+    char cwd[1024]; // Buffer to store current directory path
+
+    // Get the current working directory
+    if (getcwd(cwd, sizeof(cwd)) == NULL) {
+        perror("getcwd error");
+        return -1;
+        
+    }
+
+    DIR *dir = opendir(cwd);
+    if (dir == NULL){
+        perror("opendir error");
+        return -1;
+        
+    }
+
+    struct dirent *entry;
+    while ((entry = readdir(dir))!=NULL){
+        if ((strcmp(entry->d_name, ".") != 0 && strcmp(entry->d_name, "..") != 0)){
+            printf("%s \n",entry->d_name);
+        }
+        
+    }
+    closedir(dir);
+    return 1;
+
+    
 }
 
 int mesh_launch(char **args){
@@ -160,8 +198,14 @@ void mesh_loop(void){
     char *line;
     char **args;
     int status;
+    char cwd[1024];
     do {
-        printf("> ");
+
+        if (getcwd(cwd,sizeof(cwd))==NULL){
+            perror("mesh: getcwd error");
+            exit(EXIT_FAILURE);
+        }
+        printf(RED "[%s]> " RESET,cwd);
         line = mesh_readline();
         args = mesh_line_split(line);
         status = mesh_execute(args);
