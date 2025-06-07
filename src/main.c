@@ -28,7 +28,7 @@ int mesh_num_builtin(){
 
 int mesh_cd(char **args){
     if (args[1] == NULL){
-        print("Unexpected error");
+        printf("Unexpected error");
     }else{
         if (chdir(args[1]) != 0){
             perror("mesh");
@@ -142,7 +142,7 @@ char **mesh_line_split(char *line){
 
         if(pos>= bufsize){
             bufsize+= mesh_buffer_size;
-            tokens = realoc(tokens,bufsize * sizeof(char*));
+            tokens = realloc(tokens,bufsize * sizeof(char*));
             if(!tokens){
                 fprintf(stderr, "mesh: allocation error\n");
                 exit(EXIT_FAILURE);
@@ -154,4 +154,28 @@ char **mesh_line_split(char *line){
     return tokens;
 
 
+}
+
+void mesh_loop(void){
+    char *line;
+    char **args;
+    int status;
+    do {
+        printf("> ");
+        line = mesh_readline();
+        args = mesh_line_split(line);
+        status = mesh_execute(args);
+    
+        free(line);
+        free(args);
+      } while (status);
+}
+int main(int argc, char **argv)
+{
+  
+  mesh_loop();
+
+  
+
+  return EXIT_SUCCESS;
 }
