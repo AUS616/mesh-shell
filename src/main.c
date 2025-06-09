@@ -4,12 +4,16 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/wait.h>
+#include <sys/stat.h>
 #include <dirent.h>
 // commands 
 int mesh_cd(char **args);
 int mesh_help(char **args);
 int mesh_exit(char **args);
 int mesh_ls(char **args);
+int mesh_mk(char **args);
+int mesh_rm(char **args);
+int mesh_clear(char **args);
 
 //color
 #define RED "\033[31m"
@@ -20,14 +24,20 @@ char *buildin_str[] = {
     "cd",
     "help",
     "exit",
-    "ls"
+    "ls",
+    "mkdir",
+    "rmdir",
+    "clear"
 };
 // array of builtin commands
 int(*buildin_func[])(char **) = {
     &mesh_cd,
     &mesh_help,
     &mesh_exit,
-    &mesh_ls
+    &mesh_ls,
+    &mesh_mk,
+    &mesh_rm,
+    &mesh_clear
 };
 //number of builtin functions
 int mesh_num_builtin(){
@@ -86,6 +96,32 @@ int mesh_ls(char **args){
     
 }
 
+int mesh_mk(char **args){
+    const char *dir_name = args[1];
+    mode_t mode = 0755;
+    if(mkdir(dir_name,mode)!=0){
+        perror("error creating the directory");
+        return 1;
+
+    }
+    return 1;
+
+}
+
+int mesh_rm(char **args){
+    const char *dir_name = args[1];
+    if(rmdir(dir_name)!=0){
+        perror("error in removing the directory");
+        return 1;
+    }
+    return 1;
+}
+
+int mesh_clear(char **args){
+    system("clear");
+    return 1;
+
+}
 int mesh_launch(char **args){
     pid_t pid;
     int status;
