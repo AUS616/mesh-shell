@@ -18,6 +18,8 @@ int mesh_clear(char **args);
 //color
 #define RED "\033[31m"
 #define RESET "\033[0m"
+#define BLUE "\033[34m"
+#define GREEN "\033[32m"
 
 // buildin commands
 char *buildin_str[] = {
@@ -56,9 +58,17 @@ int mesh_cd(char **args){
 }
 
 int mesh_help(char **args){
-    printf("Austrin's mesh \n");
+    printf(BLUE "Austrin's mesh \n");
     printf("A simple implementation of a shell using c \n");
     printf("The buildin functions are: \n");
+    printf("Available Commands:\n");
+    printf("  cd     - Change the current directory.\n");
+    printf("  ls     - List the contents of the current directory.\n");
+    printf("  exit   - Exit the shell or program.\n");
+    printf("  help   - Display this help information.\n");
+    printf("  mkdir  - Create a new directory.\n");
+    printf("  rmdir  - Remove an empty directory.\n");
+    printf("  clear  - Clear the terminal screen.\n" RESET);
 
 }
 
@@ -252,7 +262,8 @@ void mesh_loop(void){
 }
 int main(int argc, char **argv)
 {
-  
+    printf(GREEN "Welcome to the Shell!\n");
+    printf("Type 'help' to see available commands.\n" RESET);
   mesh_loop();
 
   
